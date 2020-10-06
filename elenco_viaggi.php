@@ -1,5 +1,7 @@
 <?php
 
+include'CSS/viaggi.css';
+
 session_start();
 
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
@@ -39,55 +41,21 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 
 <!DOCTYPE html>
 <html lang="en">
-<style>
-#content {
-    margin: auto;
-	width: 80%;
-    padding: 10px;
-}
-#wrapper{
-margin: auto;
-	width: 60%;
-    padding: 10px;
-}
-th, td {
-  padding: 10px;
-  text-align: left;
-}
-th {
-	 font: 18px;
-}
-table, th, td {
-  border: 1px solid black;
-}
-#rimborsato {
-	background-color: green;
-	padding: 10px ;
-   border: 1px solid black ;
-}
-#norimborsato {
-	background-color: red;
-	padding: 10px ;
-   border: 1px solid black ;
-}
-#totale {
-	font-weight: bold;
-}
-</style>
+
 <head >
     <meta charset="UTF-8">
     <title>Elenco viaggi</title>
    	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <style type="text/css">
-        body{ font: 14px sans-serif;
-				}
-		tbody{
-			vertical-align: middle;
-		}
-        .wrapper{ width: 1000px; padding: 20px; }
-		.btn{
-			border: 1px solid black;
-		}
+           body{ font: 14px sans-serif;
+   				}
+   		tbody{
+   			vertical-align: middle;
+   		}
+           .wrapper{ width: 1000px; padding: 20px; }
+   		.btn{
+   			border: 1px solid black;
+   		}
     </style>
 </head>
 <body id="content">
@@ -147,7 +115,7 @@ table, th, td {
 							</span>
 						</div>
 
-						<?php
+		<?php
 				}
 			}
 			unset($stmt);
@@ -158,16 +126,16 @@ table, th, td {
 		<table>
 			<thead>
 			<tr>
-			    <th>PARTENZA</th>
-				<th>DESTINAZIONE</th>
-				<th>DISTANZA</th>
-				<th>AUTOSTRADA</th>
-				<th>MOTIVAZIONE</th>
-				<th>TRASPORTI</th>
-				<th>ALTRE SPESE</th>
-				<th>DATA TRASFERTA</th>
-				<th>RIMBORSO TOTALE</th>
-				<th>SITUAZIONE RIMBORSO</th>
+			  <td>PARTENZA</td>
+				<td>DESTINAZIONE</td>
+				<td>DISTANZA</td>
+				<td>AUTOSTRADA</th>
+				<td>MOTIVAZIONE</td>
+				<td>TRASPORTI</td>
+				<td>ALTRE SPESE</td>
+				<td>DATA TRASFERTA</td>
+				<td>RIMBORSO TOTALE</td>
+				<td>SITUAZIONE RIMBORSO</td>
 			</tr>
 			</thead>
 			<tbody>
@@ -196,6 +164,10 @@ table, th, td {
 
 						<td id="totale"> <?php echo $row['rimborsoTotale'] ?> € </td>
 
+						<!-- da vedere anche in base se amministratore o altro utente -->
+
+
+
 						<?php if(($rimborsato != "si") AND ($_SESSION["tipo_utente"] == "admin")) { ?>
 						<td> <form action="" method="post">
 							<input type="checkbox" name="rimborso" value ="<?php echo $row["trasferte_id"] ?>" >Rimborso
@@ -209,10 +181,15 @@ table, th, td {
 						<?php } elseif(($rimborsato != "si") AND !($_SESSION["tipo_utente"] == "admin")) { ?>
 
 						<td><div id="norimborsato">Non rimborsato</div></td>
-						
+
+
 						<?php
 						} ?>
 						</tr>
+
+
+
+
 
 						<?php
 					}
