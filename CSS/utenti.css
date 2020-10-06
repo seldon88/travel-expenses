@@ -1,0 +1,27 @@
+
+<style>
+#content {
+    margin: 0 auto;
+    padding: 10px;
+}
+@media only screen and (min-width: 1200px) {
+  #content {
+    width: 80%;
+    padding: 10px;
+  }
+}
+#wrapper{
+  margin: 0 auto;
+	width: 100%;
+  height: auto;
+  padding: 10px;
+}
+td {
+  padding: 10px;
+  text-align: left;
+}
+table, td {
+  border: 1px solid black;
+}
+
+</style>
