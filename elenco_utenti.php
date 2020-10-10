@@ -53,9 +53,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
       <thead>
       <tr>
-        <td>PARTENZA</td>
-        <td>DESTINAZIONE</td>
-        <td>DISTANZA</td>
+        <td>NOME</td>
+        <td>USERNAME</td>
+        <td>DATA DI NASCITA</td>
         <td></td>
         <td></td>
       </tr>

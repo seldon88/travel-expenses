@@ -70,6 +70,7 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 		<br/>
 		<hr/>
 
+
 		<?php
 
 		$sql = "SELECT utenti.nome, utenti.cognome FROM trasferte INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id WHERE trasferte.dipendente_id = :id_dipendente";
