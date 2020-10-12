@@ -75,13 +75,32 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 
 		$sql = "SELECT utenti.nome, utenti.cognome FROM trasferte INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id WHERE trasferte.dipendente_id = :id_dipendente";
 
-		if($stmt = $pdo->prepare($sql)){
+    // START MODIFICA
 
+    $sql2 = "SELECT nome, cognome, dipendente_id FROM utenti WHERE dipendente_id = :dipendente_id";
+
+    if($stmt = $pdo->prepare($sql2)){
+      if($stmt->execute(array(':dipendente_id' => $id))){
+        if($stmt->rowCount() > 0){
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            ?>
+          <h2>Trasferte di <?php echo $row["nome"] ?> <?php echo $row["cognome"] ?> </h2>
+          	<?php
+        }
+      }
+    } else {
+              echo "Qualcosa è andato storto. Riprova più tardi.";
+          }
+      unset($stmt);
+    }
+
+    // FINE MODIFICA
+
+    if($stmt = $pdo->prepare($sql)){
 			if($stmt->execute(array(':id_dipendente' => $id))){
 				if($stmt->rowCount() > 0){
 					$row = $stmt->fetch(PDO::FETCH_ASSOC);
 						?>
-						<h2>Trasferte di <?php echo $row["nome"] ?> <?php echo $row["cognome"] ?> - Mese di <?php echo date("m") ?> </h2>
 						<div class="form-group">
 							<select id="month_start" name="month_start" />
 							<option value="" selected="selected" hidden="hidden">Seleziona mese</option>
@@ -116,32 +135,28 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 							</span>
 						</div>
 
+            <hr/>
+            <table>
+              <thead>
+              <tr>
+                <td>PARTENZA</td>
+                <td>DESTINAZIONE</td>
+                <td>DISTANZA</td>
+                <td>AUTOSTRADA</th>
+                <td>MOTIVAZIONE</td>
+                <td>TRASPORTI</td>
+                <td>ALTRE SPESE</td>
+                <td>DATA TRASFERTA</td>
+                <td>RIMBORSO TOTALE</td>
+                <td>SITUAZIONE RIMBORSO</td>
+              </tr>
+              </thead>
+              <tbody>
 		<?php
 				}
 			}
 			unset($stmt);
 		}
-		?>
-
-		<hr/>
-		<table>
-			<thead>
-			<tr>
-			  <td>PARTENZA</td>
-				<td>DESTINAZIONE</td>
-				<td>DISTANZA</td>
-				<td>AUTOSTRADA</th>
-				<td>MOTIVAZIONE</td>
-				<td>TRASPORTI</td>
-				<td>ALTRE SPESE</td>
-				<td>DATA TRASFERTA</td>
-				<td>RIMBORSO TOTALE</td>
-				<td>SITUAZIONE RIMBORSO</td>
-			</tr>
-			</thead>
-			<tbody>
-
-		<?php
 
 		$sql = "SELECT utenti.nome, utenti.cognome, trasferte_id, partenza, destinazione, distanzaInKm, autostrada, motivazione, trasportoPubblico, altreSpese, dataTrasferta, rimborsato, rimborsoTotale FROM trasferte INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id WHERE trasferte.dipendente_id = :id_dipendente ORDER BY dataTrasferta DESC";
 

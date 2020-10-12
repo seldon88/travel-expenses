@@ -213,8 +213,6 @@ margin: auto;
 
 			<div class="form-group <?php echo (!empty($data_err)) ? 'has-error' : ''; ?>">
             <label>Data</label>
-            <input type="text" id="datepicker" class="form-control">
-            <span class="help-block"><?php echo $data_err; ?></span>
             <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
             <link rel="stylesheet" href="/resources/demos/style.css">
             <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -226,6 +224,8 @@ margin: auto;
               });
             } );
             </script>
+            <input type="text" id="datepicker" class="form-control" >
+            <span class="help-block"><?php echo $data_err; ?></span>
       </div>
 
 		<div class="form-group">
