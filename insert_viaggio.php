@@ -81,11 +81,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 		$altreSpese = trim($_POST["altreSpese"]);
 	}
 
-	if(empty(trim($_POST["data"]))){
-		$data_err = "Inserisci data";
-	} else{
-		$data = trim($_POST["data"]);
-	}
+	//if(empty(trim($_POST["data"]))){
+	//	$data_err = "Inserisci data";
+	//} else{
+	//	$data = trim($_POST["data"]);
+	//}
 
 	if(empty($destinazione_err && $distanza_err && $autostrada_err && $motivazione_err && $trasportoPubblico_err && $altreSpese_err && $data_err )){
 
@@ -213,6 +213,8 @@ margin: auto;
 
 			<div class="form-group <?php echo (!empty($data_err)) ? 'has-error' : ''; ?>">
             <label>Data</label>
+            <input type="text" name="data" id="datepicker" class="form-control" >
+            <span class="help-block"><?php echo $data_err; ?></span>
             <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
             <link rel="stylesheet" href="/resources/demos/style.css">
             <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -224,8 +226,7 @@ margin: auto;
               });
             } );
             </script>
-            <input type="text" id="datepicker" class="form-control" >
-            <span class="help-block"><?php echo $data_err; ?></span>
+
       </div>
 
 		<div class="form-group">
