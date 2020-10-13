@@ -1,15 +1,5 @@
 <?php
 
-// campo con rimborso totale su tabella
-// http://html.cita.illinois.edu/nav/form/date/index.php?example=6
-
-// PARAMETRO COSTO BENZINA
-
-// inserire si o no rimborso effettuato
-// riga con totale
-// pulsante stampa
-
-
 session_start();
 
 if(!(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true)){
@@ -80,12 +70,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 	} else{
 		$altreSpese = trim($_POST["altreSpese"]);
 	}
-
-	//if(empty(trim($_POST["data"]))){
-	//	$data_err = "Inserisci data";
-	//} else{
-	//	$data = trim($_POST["data"]);
-	//}
 
 	if(empty($destinazione_err && $distanza_err && $autostrada_err && $motivazione_err && $trasportoPubblico_err && $altreSpese_err && $data_err )){
 
@@ -213,7 +197,7 @@ margin: auto;
 
 			<div class="form-group <?php echo (!empty($data_err)) ? 'has-error' : ''; ?>">
             <label>Data</label>
-            <input type="text" name="data" id="datepicker" class="form-control" >
+            <input type="text" name="data" id="datepicker" class="form-control" autocomplete="off" >
             <span class="help-block"><?php echo $data_err; ?></span>
             <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
             <link rel="stylesheet" href="/resources/demos/style.css">
