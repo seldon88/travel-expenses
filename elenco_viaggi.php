@@ -70,16 +70,11 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 		<br/>
 		<hr/>
 
-
 		<?php
 
-		$sql = "SELECT utenti.nome, utenti.cognome FROM trasferte INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id WHERE trasferte.dipendente_id = :id_dipendente";
+		$sql1 = "SELECT nome, cognome, dipendente_id FROM utenti WHERE dipendente_id = :dipendente_id";
 
-    // START MODIFICA
-
-    $sql2 = "SELECT nome, cognome, dipendente_id FROM utenti WHERE dipendente_id = :dipendente_id";
-
-    if($stmt = $pdo->prepare($sql2)){
+    if($stmt = $pdo->prepare($sql1)){
       if($stmt->execute(array(':dipendente_id' => $id))){
         if($stmt->rowCount() > 0){
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -89,14 +84,14 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
         }
       }
     } else {
-              echo "Qualcosa è andato storto. Riprova più tardi.";
-          }
+      echo "Qualcosa è andato storto. Riprova più tardi.";
+    }
       unset($stmt);
     }
 
-    // FINE MODIFICA
+    $sql2 = "SELECT utenti.nome, utenti.cognome FROM trasferte INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id WHERE trasferte.dipendente_id = :id_dipendente";
 
-    if($stmt = $pdo->prepare($sql)){
+    if($stmt = $pdo->prepare($sql2)){
 			if($stmt->execute(array(':id_dipendente' => $id))){
 				if($stmt->rowCount() > 0){
 					$row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -129,7 +124,6 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 							<option>2025</option>
 							</select>
 							</fieldset>
-
 							<span class="form-group">
 								<input type="submit" class="btn btn-primary" value="Vedi">
 							</span>
@@ -158,16 +152,14 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 			unset($stmt);
 		}
 
-		$sql = "SELECT utenti.nome, utenti.cognome, trasferte_id, partenza, destinazione, distanzaInKm, autostrada, motivazione, trasportoPubblico, altreSpese, dataTrasferta, rimborsato, rimborsoTotale FROM trasferte INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id WHERE trasferte.dipendente_id = :id_dipendente ORDER BY dataTrasferta DESC";
+		$sql3 = "SELECT utenti.nome, utenti.cognome, trasferte_id, partenza, destinazione, distanzaInKm, autostrada, motivazione, trasportoPubblico, altreSpese, dataTrasferta, rimborsato, rimborsoTotale FROM trasferte INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id WHERE trasferte.dipendente_id = :id_dipendente AND MONTH(trasferte.dataTrasferta) = MONTH(CURDATE()) AND YEAR(trasferte.dataTrasferta) = YEAR(CURDATE()) ORDER BY dataTrasferta DESC";
 
-		if($stmt = $pdo->prepare($sql)){
-
+    if($stmt = $pdo->prepare($sql3)){
 			if($stmt->execute(array(':id_dipendente' => $id))){
 				if($stmt->rowCount() > 0){
 					while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 						$rimborsato= $row["rimborsato"];
 						?>
-
 						<tr>
 						<td> <?php echo $row['partenza'] ?> 	</td>
 						<td> <?php echo $row['destinazione'] ?> </td>
@@ -182,42 +174,29 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 
 						<!-- da vedere anche in base se amministratore o altro utente -->
 
-
-
 						<?php if(($rimborsato != "si") AND ($_SESSION["tipo_utente"] == "admin")) { ?>
 						<td> <form action="" method="post">
 							<input type="checkbox" name="rimborso" value ="<?php echo $row["trasferte_id"] ?>" >Rimborso
 							<input type="submit" value="Eseguito" >
 						</form></td>
-
 						<?php } elseif($rimborsato == "si") { ?>
-
 						<td><div id="rimborsato">Rimborsato</div></td>
-
 						<?php } elseif(($rimborsato != "si") AND !($_SESSION["tipo_utente"] == "admin")) { ?>
-
 						<td><div id="norimborsato">Non rimborsato</div></td>
-
-
 						<?php
 						} ?>
 						</tr>
-
-
-
-
-
 						<?php
 					}
 				} else{
-				echo "Non sono presenti viaggi.";
+          echo "Non sono presenti viaggi.";
 				}
 			} else {
-                echo "Qualcosa è andato storto. Riprova più tardi.";
+          echo "Qualcosa è andato storto. Riprova più tardi.";
             }
 			unset($stmt);
 		}
-        unset($pdo);
+    unset($pdo);
 		?>
 
 			</tbody>
