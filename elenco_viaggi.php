@@ -25,13 +25,17 @@ $mesi = array(1=>'gennaio', 'febbraio', 'marzo', 'aprile',
 
 list($mese,$anno) = explode('-',date('n-Y'));
 
-
-
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-$rimborso = trim($_POST["rimborso"]);
 
-// Imposto il viaggio rimborsato - solo per amministratore
-$sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id ";
+	if($_POST["meseanno"]){
+		$meseanno = trim($_POST["meseanno"]);
+  // Visualizzo il mese e anno richiesto
+	}
+
+  if($_POST["rimborso"]){
+  $rimborso = trim($_POST["rimborso"]);
+  // Imposto il viaggio rimborsato - solo per amministratore
+  $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id ";
 
 		if($stmt = $pdo->prepare($sql)){
 			$stmt->bindParam(":rimborso_id", $param_rimborso, PDO::PARAM_STR);
@@ -45,6 +49,7 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 			unset($stmt);
 		}
 		unset($pdo);
+}
 }
 ?>
 
@@ -81,7 +86,7 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 
 		<?php
 
-    // Visualizza il nome e il cognome
+    // Visualizza il nome e il cognome e il mese anno corrente
 		$sql1 = "SELECT nome, cognome, dipendente_id FROM utenti WHERE dipendente_id = :dipendente_id";
 
     if($stmt = $pdo->prepare($sql1)){
@@ -92,17 +97,45 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
           <h2>Trasferte di <?php echo $row["nome"] ?> <?php echo $row["cognome"] ?> </h2>
           <h3> <?php echo $mesi[$mese],' ',$anno; ?> </h3>
 
-          <div>
-          <script>
-          $( function() {
-            $( "#meseanno" ).datepicker({
-              changeMonth: true
-            });
-          });
-          </script>
-          <input type="submit" id="meseanno" value="Vedi">
-          </div>
 
+          <!--
+          Post per visualizzare il mese e anno richiesti:
+          nuova query sql diretta alla stessa pagina
+          -->
+          <form action="" method="post">
+          <div class="form-group">
+             <select id="month_start" name="month_start" />
+             <option value="" selected="selected" hidden="hidden">Seleziona mese</option>
+             <option> <?php echo $mesi[1] ?> </option>
+             <option>Febbraio</option>
+             <option>Marzo</option>
+             <option>Aprile</option>
+             <option>Maggio</option>
+             <option>Giugno</option>
+             <option>Luglio</option>
+             <option>Agosto</option>
+             <option>Settembre</option>
+             <option>Ottobre</option>
+             <option>Novembre</option>
+             <option>Dicembre</option>
+             </select> -
+             <select id="year_start"   name="year_start" />
+             <option value="" selected="selected" hidden="hidden">Seleziona anno</option>
+             <option>2018</option>
+             <option>2019</option>
+             <option>2020</option>
+             <option>2021</option>
+             <option>2022</option>
+             <option>2023</option>
+             <option>2024</option>
+             <option>2025</option>
+             </select>
+             </fieldset>
+             <span class="form-group">
+               <input type="submit" name="meseanno" class="btn btn-primary" value="Vedi">
+             </span>
+           </div>
+         </form>
           <?php
         }
       }
@@ -112,38 +145,6 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
       unset($stmt);
     }
 
-    // Visualizza i viaggi se presenti
-    $sql2 = "SELECT utenti.nome, utenti.cognome FROM trasferte
-    INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id
-    WHERE trasferte.dipendente_id = :id_dipendente";
-
-    if($stmt = $pdo->prepare($sql2)){
-			if($stmt->execute(array(':id_dipendente' => $id))){
-				if($stmt->rowCount() > 0){
-					$row = $stmt->fetch(PDO::FETCH_ASSOC);
-						?>
-            <hr/>
-            <table>
-              <thead>
-              <tr>
-                <td>PARTENZA</td>
-                <td>DESTINAZIONE</td>
-                <td>DISTANZA</td>
-                <td>AUTOSTRADA</th>
-                <td>MOTIVAZIONE</td>
-                <td>TRASPORTI</td>
-                <td>ALTRE SPESE</td>
-                <td>DATA TRASFERTA</td>
-                <td>RIMBORSO TOTALE</td>
-                <td>SITUAZIONE RIMBORSO</td>
-              </tr>
-              </thead>
-              <tbody>
-		<?php
-				}
-			}
-			unset($stmt);
-		}
 
     // Visualizza i viaggi per il mese corrente
 		$sql3 = "SELECT utenti.nome, utenti.cognome, trasferte_id, partenza, destinazione,
@@ -158,6 +159,27 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
     if($stmt = $pdo->prepare($sql3)){
 			if($stmt->execute(array(':id_dipendente' => $id))){
 				if($stmt->rowCount() > 0){
+          ?>
+
+          <hr/>
+          <table>
+            <thead>
+            <tr>
+              <td>PARTENZA</td>
+              <td>DESTINAZIONE</td>
+              <td>DISTANZA</td>
+              <td>AUTOSTRADA</th>
+              <td>MOTIVAZIONE</td>
+              <td>TRASPORTI</td>
+              <td>ALTRE SPESE</td>
+              <td>DATA TRASFERTA</td>
+              <td>RIMBORSO TOTALE</td>
+              <td>SITUAZIONE RIMBORSO</td>
+            </tr>
+            </thead>
+            <tbody>
+
+              <?php
 					while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 						$rimborsato= $row["rimborsato"];
 						?>
@@ -172,8 +194,6 @@ $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id "
 						<td> <?php echo $row['dataTrasferta'] ?> </td>
 
 						<td id="totale"> <?php echo $row['rimborsoTotale'] ?> € </td>
-
-						<!-- da vedere anche in base se amministratore o altro utente -->
 
 						<?php if(($rimborsato != "si") AND ($_SESSION["tipo_utente"] == "admin")) { ?>
 						<td> <form action="" method="post">
