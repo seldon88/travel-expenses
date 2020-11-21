@@ -18,39 +18,131 @@ if($_SESSION["tipo_utente"] == "admin"){
 }
 
 $rimborso = "";
+$month = "";
+$year = "";
+
 
 $mesi = array(1=>'gennaio', 'febbraio', 'marzo', 'aprile',
                 'maggio', 'giugno', 'luglio', 'agosto',
                 'settembre', 'ottobre', 'novembre','dicembre');
 
-list($mese,$anno) = explode('-',date('n-Y'));
+list($month,$year) = explode('-',date('n-Y'));
 
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-	if($_POST["meseanno"]){
-		$meseanno = trim($_POST["meseanno"]);
-  // Visualizzo il mese e anno richiesto
-	}
+	if($_SESSION["tipo_utente"] == "admin"){
 
-  if($_POST["rimborso"]){
-  $rimborso = trim($_POST["rimborso"]);
-  // Imposto il viaggio rimborsato - solo per amministratore
-  $sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id ";
+		if($_POST["rimborso"]){
+			$rimborso = trim($_POST["rimborso"]);
+
+			// Imposto il viaggio rimborsato - solo per amministratore
+			$sql = "UPDATE Trasferte SET rimborsato='si' WHERE trasferte_id = :rimborso_id ";
+
+			if($stmt = $pdo->prepare($sql)){
+				$stmt->bindParam(":rimborso_id", $param_rimborso, PDO::PARAM_STR);
+				$param_rimborso = trim($_POST["rimborso"]);
+				if($stmt->execute()){
+					header("location: elenco_viaggi.php");
+					exit;
+				} else{
+					echo "Qualcosa è andato storto.";
+				}
+				unset($stmt);
+			}
+			unset($pdo);
+		}
+	} else {
+
+	//	$mese = $_POST["mese"];
+	//	$anno = $_POST["anno"];
+
+		// Visualizzo il mese e anno richiesto
+		$sql = "SELECT utenti.nome, utenti.cognome, trasferte_id, partenza, destinazione,
+		distanzaInKm, autostrada, motivazione, trasportoPubblico, altreSpese, dataTrasferta,
+		rimborsato, rimborsoTotale FROM trasferte
+		INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id
+		WHERE trasferte.dipendente_id = :id_dipendente
+		AND MONTH(trasferte.dataTrasferta) = :mese
+		AND YEAR(trasferte.dataTrasferta) = :anno
+		ORDER BY dataTrasferta DESC";
 
 		if($stmt = $pdo->prepare($sql)){
-			$stmt->bindParam(":rimborso_id", $param_rimborso, PDO::PARAM_STR);
-			$param_rimborso= trim($_POST["rimborso"]);
-			if($stmt->execute()){
-				header("location: elenco_viaggi.php");
+
+      //$stmt->bindParam(":dipendente_id", $param_id, PDO::PARAM_INT);
+      //$param_id =  $_SESSION["dipendente_id"];
+
+			$stmt->bindParam(":mese", $param_mese, PDO::PARAM_STR);
+			$param_mese = trim($_POST["mese"]);
+
+			$stmt->bindParam(":anno", $param_anno, PDO::PARAM_STR);
+			$param_anno = trim($_POST["anno"]);
+
+			//if($stmt->execute()){
+      if($stmt->execute(array(':id_dipendente' => $id))){
+        if($stmt->rowCount() > 0){
+          ?>
+
+          <hr/>
+          <table>
+            <thead>
+            <tr>
+              <td>PARTENZA</td>
+              <td>DESTINAZIONE</td>
+              <td>DISTANZA</td>
+              <td>AUTOSTRADA</th>
+              <td>MOTIVAZIONE</td>
+              <td>TRASPORTI</td>
+              <td>ALTRE SPESE</td>
+              <td>DATA TRASFERTA</td>
+              <td>RIMBORSO TOTALE</td>
+              <td>SITUAZIONE RIMBORSO</td>
+            </tr>
+            </thead>
+            <tbody>
+
+              <?php
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $rimborsato= $row["rimborsato"];
+            ?>
+            <tr>
+            <td> <?php echo $row['partenza'] ?> 	</td>
+            <td> <?php echo $row['destinazione'] ?> </td>
+            <td> <?php echo $row['distanzaInKm'] ?> km </td>
+            <td> <?php echo $row['autostrada'] ?>  € </td>
+            <td> <?php echo $row['motivazione'] ?>  </td>
+            <td> <?php echo $row['trasportoPubblico'] ?> € </td>
+            <td> <?php echo $row['altreSpese'] ?>  € </td>
+            <td> <?php echo $row['dataTrasferta'] ?> </td>
+
+            <td id="totale"> <?php echo $row['rimborsoTotale'] ?> € </td>
+
+            <?php if(($rimborsato != "si") AND ($_SESSION["tipo_utente"] == "admin")) { ?>
+            <td> <form action="" method="post">
+              <input type="checkbox" name="rimborso" value ="<?php echo $row["trasferte_id"] ?>" >Rimborso
+              <input type="submit" value="Eseguito" >
+            </form></td>
+            <?php } elseif($rimborsato == "si") { ?>
+            <td><div id="rimborsato">Rimborsato</div></td>
+            <?php } elseif(($rimborsato != "si") AND !($_SESSION["tipo_utente"] == "admin")) { ?>
+            <td><div id="norimborsato">Non rimborsato</div></td>
+            <?php
+            } ?>
+            </tr>
+            <?php
 				exit;
-			} else{
-				echo "Qualcosa è andato storto.";
-			}
+      }
+    } else {
+        echo "Qualcosa è andato storto.";
+      }
+
+      }
+
 			unset($stmt);
 		}
 		unset($pdo);
+	}
 }
-}
+
 ?>
 
 <!DOCTYPE html>
@@ -95,18 +187,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
           ?>
           <h2>Trasferte di <?php echo $row["nome"] ?> <?php echo $row["cognome"] ?> </h2>
-          <h3> <?php echo $mesi[$mese],' ',$anno; ?> </h3>
-
+          <h3> <?php echo $mesi[$month],' ',$year; ?> </h3>
 
           <!--
-          Post per visualizzare il mese e anno richiesti:
-          nuova query sql diretta alla stessa pagina
+		  	<input type="checkbox" name="rimborso" value =?php echo $row["trasferte_id"] ?>" >Rimborso
+			<input type="submit" value="Eseguito" >
           -->
+
           <form action="" method="post">
           <div class="form-group">
-             <select id="month_start" name="month_start" />
+             <select id="month_start" name="mese" />
              <option value="" selected="selected" hidden="hidden">Seleziona mese</option>
-             <option> <?php echo $mesi[1] ?> </option>
+             <option> 1 </option>
              <option>Febbraio</option>
              <option>Marzo</option>
              <option>Aprile</option>
@@ -119,7 +211,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
              <option>Novembre</option>
              <option>Dicembre</option>
              </select> -
-             <select id="year_start"   name="year_start" />
+             <select id="year_start"   name="anno" />
              <option value="" selected="selected" hidden="hidden">Seleziona anno</option>
              <option>2018</option>
              <option>2019</option>
@@ -132,7 +224,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
              </select>
              </fieldset>
              <span class="form-group">
-               <input type="submit" name="meseanno" class="btn btn-primary" value="Vedi">
+               <input type="submit" class="btn btn-primary" value="Vedi">
              </span>
            </div>
          </form>
