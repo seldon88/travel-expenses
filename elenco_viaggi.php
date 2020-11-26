@@ -4,6 +4,7 @@ include'CSS/viaggi.css';
 
 session_start();
 
+
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
     header("location: index.php");
     exit;
@@ -51,99 +52,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 			}
 			unset($pdo);
 		}
-	} else {
-
-	//	$mese = $_POST["mese"];
-	//	$anno = $_POST["anno"];
-
-		// Visualizzo il mese e anno richiesto
-		$sql = "SELECT utenti.nome, utenti.cognome, trasferte_id, partenza, destinazione,
-		distanzaInKm, autostrada, motivazione, trasportoPubblico, altreSpese, dataTrasferta,
-		rimborsato, rimborsoTotale FROM trasferte
-		INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id
-		WHERE trasferte.dipendente_id = :id_dipendente
-		AND MONTH(trasferte.dataTrasferta) = :mese
-		AND YEAR(trasferte.dataTrasferta) = :anno
-		ORDER BY dataTrasferta DESC";
-
-		if($stmt = $pdo->prepare($sql)){
-
-      //$stmt->bindParam(":dipendente_id", $param_id, PDO::PARAM_INT);
-      //$param_id =  $_SESSION["dipendente_id"];
-
-			$stmt->bindParam(":mese", $param_mese, PDO::PARAM_STR);
-			$param_mese = trim($_POST["mese"]);
-
-			$stmt->bindParam(":anno", $param_anno, PDO::PARAM_STR);
-			$param_anno = trim($_POST["anno"]);
-
-			//if($stmt->execute()){
-      if($stmt->execute(array(':id_dipendente' => $id))){
-        if($stmt->rowCount() > 0){
-          ?>
-
-          <hr/>
-          <table>
-            <thead>
-            <tr>
-              <td>PARTENZA</td>
-              <td>DESTINAZIONE</td>
-              <td>DISTANZA</td>
-              <td>AUTOSTRADA</th>
-              <td>MOTIVAZIONE</td>
-              <td>TRASPORTI</td>
-              <td>ALTRE SPESE</td>
-              <td>DATA TRASFERTA</td>
-              <td>RIMBORSO TOTALE</td>
-              <td>SITUAZIONE RIMBORSO</td>
-            </tr>
-            </thead>
-            <tbody>
-
-              <?php
-          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $rimborsato= $row["rimborsato"];
-            ?>
-            <tr>
-            <td> <?php echo $row['partenza'] ?> 	</td>
-            <td> <?php echo $row['destinazione'] ?> </td>
-            <td> <?php echo $row['distanzaInKm'] ?> km </td>
-            <td> <?php echo $row['autostrada'] ?>  € </td>
-            <td> <?php echo $row['motivazione'] ?>  </td>
-            <td> <?php echo $row['trasportoPubblico'] ?> € </td>
-            <td> <?php echo $row['altreSpese'] ?>  € </td>
-            <td> <?php echo $row['dataTrasferta'] ?> </td>
-
-            <td id="totale"> <?php echo $row['rimborsoTotale'] ?> € </td>
-
-            <?php if(($rimborsato != "si") AND ($_SESSION["tipo_utente"] == "admin")) { ?>
-            <td> <form action="" method="post">
-              <input type="checkbox" name="rimborso" value ="<?php echo $row["trasferte_id"] ?>" >Rimborso
-              <input type="submit" value="Eseguito" >
-            </form></td>
-            <?php } elseif($rimborsato == "si") { ?>
-            <td><div id="rimborsato">Rimborsato</div></td>
-            <?php } elseif(($rimborsato != "si") AND !($_SESSION["tipo_utente"] == "admin")) { ?>
-            <td><div id="norimborsato">Non rimborsato</div></td>
-            <?php
-            } ?>
-            </tr>
-            <?php
-				exit;
-      }
-    } else {
-        echo "Qualcosa è andato storto.";
-      }
-
-      }
-
-			unset($stmt);
-		}
-		unset($pdo);
-	}
+  }
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -198,18 +110,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
           <div class="form-group">
              <select id="month_start" name="mese" />
              <option value="" selected="selected" hidden="hidden">Seleziona mese</option>
-             <option> 1 </option>
-             <option>Febbraio</option>
-             <option>Marzo</option>
-             <option>Aprile</option>
-             <option>Maggio</option>
-             <option>Giugno</option>
-             <option>Luglio</option>
-             <option>Agosto</option>
-             <option>Settembre</option>
-             <option>Ottobre</option>
-             <option>Novembre</option>
-             <option>Dicembre</option>
+             <option value="1" >Gennaio</option>
+             <option value="2" >Febbraio</option>
+             <option value="3" >Marzo</option>
+             <option value="4" >Aprile</option>
+             <option value="5" >Maggio</option>
+             <option value="6" >Giugno</option>
+             <option value="7" >Luglio</option>
+             <option value="8" >Agosto</option>
+             <option value="9" >Settembre</option>
+             <option value="10">Ottobre</option>
+             <option value="11" >Novembre</option>
+             <option value="12" >Dicembre</option>
              </select> -
              <select id="year_start"   name="anno" />
              <option value="" selected="selected" hidden="hidden">Seleziona anno</option>
@@ -224,7 +136,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
              </select>
              </fieldset>
              <span class="form-group">
-               <input type="submit" class="btn btn-primary" value="Vedi">
+               <input id="bottone_vedi" type="submit" class="btn btn-primary" value="Vedi">
              </span>
            </div>
          </form>
@@ -244,8 +156,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     rimborsato, rimborsoTotale FROM trasferte
     INNER JOIN utenti ON utenti.dipendente_id = trasferte.dipendente_id
     WHERE trasferte.dipendente_id = :id_dipendente
-    AND MONTH(trasferte.dataTrasferta) = MONTH(CURDATE())
-    AND YEAR(trasferte.dataTrasferta) = YEAR(CURDATE())
+    AND MONTH(trasferte.dataTrasferta) = ".(isset($_GET["month"]) ? $_GET["month"] : "MONTH(CURDATE())")."
+    AND YEAR(trasferte.dataTrasferta) = ".(isset($_GET["year"]) ? $_GET["year"] : "YEAR(CURDATE())")."
     ORDER BY dataTrasferta DESC";
 
     if($stmt = $pdo->prepare($sql3)){
@@ -315,6 +227,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 			</tbody>
 		</table>
     </div>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script>
+    $( "#bottone_vedi" ).click(function() {
+      var month = $("#month_start").val();
+      var year = $("#year_start").val();
+      if(month!="" && year!=""){
+      //window.open("?month="+$("#month_start").val()+"&year="+$("#year_start").val());
+      window.open("?month="+$("#month_start").val()+"&year="+$("#year_start").val());
+    } else {
+      alert("Sei un mona!");
+    }
+    });
+  </script>
+  <button onclick="window.print()">Stampa</button>
 </body>
 </body>
 </html>
