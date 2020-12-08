@@ -236,7 +236,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
       //window.open("?month="+$("#month_start").val()+"&year="+$("#year_start").val());
       window.open("?month="+$("#month_start").val()+"&year="+$("#year_start").val());
     } else {
-      alert("Sei un mona!");
+      alert("Seleziona mese e anno!");
     }
     });
   </script>
